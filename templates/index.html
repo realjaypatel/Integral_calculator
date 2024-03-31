@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Calculator</title>
+</head>
+<body>
+    <h1>Integration Calculator</h1>
+    <form action="/calculate" method="post">
+        <label for="expression">Expression:</label>
+        <input type="text" id="expression" name="expression" required><br><br>
+        <label for="variable">Variable:</label>
+        <input type="text" id="variable" name="variable" required><br><br>
+        <button type="submit">Calculate</button>
+    </form>
+    <h1>definate Integration Calculator</h1>
+    <form action="/integrate" method="post">
+        <label for="fxn">Function:</label>
+        <input type="text" id="fxn" name="fxn" required><br><br>
+        <label for="lowerBound">lower bound:</label>
+        <input type="text" id="lowerBound" name="lowerBound" required><br><br>
+        <label for="upperBound">Upper bound:</label>
+        <input type="text" id="upperBound" name="upperBound" required><br><br>
+        <button type="submit">Calculate</button>
+    </form>
+</body>
+</html>
