@@ -75,6 +75,13 @@ def calculate():
     # Get input from the form
     expression = request.form['expression']
     variable = request.form['variable']
+    plot_url = '1'
+    aba = expression
+    abc = aba.replace("^", "**")
+    def g(x):
+        func = eval(abc)
+        return func
+
 
     # Convert input into a sympy expression
     x = sp.symbols(variable)
@@ -82,31 +89,22 @@ def calculate():
 
     # Calculate the integral
     result = sp.integrate(integrand, x)
-    print(result)
-    x = [1, 2, 3, 4]
-    y = [1, 4, 9, 16]
-    plt.plot(x, y)
-    plt.xlabel('X-axis')
-    plt.ylabel('Y-axis')
-    plt.title('Sample Plot')
-    # Convert plot to base64-encoded image
+    
+    x = np.linspace(-8, 10+8, 20000)
+    if("ln" in aba or "log" in aba):
+        x = np.linspace(1, 10+8, 20000)
+    y = [g(a) for a in x]
+    fig, ax = plt.subplots()
+    plt.xlabel('$x$')
+    plt.ylabel(aba)
+    plt.grid()
+    plt.plot(x,y, color='orange')
     img = io.BytesIO()
     plt.savefig(img, format='png')
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
-
     plt.close()
-
-
-
-
-
-
-
-
-
-
-    return render_template('result.html',plot_url=plot_url , expression=expression, variable=variable, result=result)
+    return render_template('result.html',plot_url=plot_url , fxn=expression, variable=variable, result=result)
 
 @app.route('/integrate', methods=['POST'])
 def intigrate():
@@ -139,7 +137,7 @@ def intigrate():
     # Set up the plot
     fig, ax = plt.subplots()
     plt.xlabel('$x$')
-    plt.ylabel("$f(x)$")
+    plt.ylabel(aba)
     plt.grid()
     plt.plot(x,y, color='orange')
     ix = np.linspace(low, upp)
