@@ -19,7 +19,6 @@ import warnings
 warnings.filterwarnings("ignore") 
 
 
-
 # def integrate_with_graph():
 #     def g(x):
 #         func = eval(abc)
@@ -70,22 +69,22 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/calculate', methods=['POST'])
+@app.route('/inti', methods=['POST'])
 def calculate():
     # Get input from the form
-    expression = request.form['expression']
+    fxn = request.form['fxn']
     variable = request.form['variable']
     plot_url = '1'
-    aba = expression
+    aba = fxn
     abc = aba.replace("^", "**")
     def g(x):
         func = eval(abc)
         return func
 
 
-    # Convert input into a sympy expression
+    # Convert input into a sympy fxn
     x = sp.symbols(variable)
-    integrand = sp.sympify(expression)
+    integrand = sp.sympify(fxn)
 
     # Calculate the integral
     result = sp.integrate(integrand, x)
@@ -104,9 +103,9 @@ def calculate():
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
     plt.close()
-    return render_template('result.html',plot_url=plot_url , fxn=expression, variable=variable, result=result)
+    return render_template('result.html',plot_url=plot_url , fxn=fxn, variable=variable, result=result)
 
-@app.route('/integrate', methods=['POST'])
+@app.route('/definti', methods=['POST'])
 def intigrate():
     # Get input from the form
     fxn = request.form['fxn']
@@ -167,6 +166,154 @@ def intigrate():
     return render_template('result.html',plot_url=plot_url , fxn = request.form['fxn'],lowerBound = request.form['lowerBound'],upperBound = request.form['upperBound'],result="This integral is divergent. It cannot be computed as of now.")
 
 
+@app.route('/diff', methods=['POST'])
+def diff():
+    
+    # Get input from the form
+    fxn = request.form['fxn']
+    variable = request.form['variable']
+    plot_url = '1'
+    aba = fxn
+    abc = aba.replace("^", "**")
+    def g(x):
+        func = eval(abc)
+        return func
+
+
+    # Convert input into a sympy fxn
+    x = sp.symbols(variable)
+    integrand = sp.sympify(fxn)
+
+    # Calculate the integral
+    result = sp.diff(integrand, x)
+    
+    x = np.linspace(-8, 10+8, 20000)
+    if("ln" in aba or "log" in aba):
+        x = np.linspace(1, 10+8, 20000)
+    y = [g(a) for a in x]
+    fig, ax = plt.subplots()
+    plt.xlabel('$x$')
+    plt.ylabel(aba)
+    plt.grid()
+    plt.plot(x,y, color='orange')
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode()
+    plt.close()
+    return render_template('result.html',plot_url=plot_url , fxn=fxn, variable=variable, result=result)
+
+@app.route('/defdiff', methods=['POST'])
+def defdiff():
+    fxn = request.form['fxn']
+    variable = request.form['variable']
+    value = float(request.form['value'])
+    plot_url = '1'
+    x = sp.symbols(variable)
+    f = sp.sympify(fxn)
+    df = sp.diff(f, x)
+    x = sp.symbols(variable)
+    f = sp.sympify(fxn)
+    result = f.subs({x: value})
+
+    x_vals = np.linspace(value - 2, value + 2, 100)
+    x = sp.symbols(variable)
+    f = sp.sympify(fxn)
+    f_lambda = sp.lambdify(x, f, modules=['numpy'])
+    tangent_line = df.subs({x: value}) * (x_vals - value) + f_lambda(value)
+
+    plt.plot(x_vals, f_lambda(x_vals), label='Function')
+    plt.plot(x_vals, tangent_line, label='Tangent at x={}'.format(value))
+    plt.scatter(value, result, color='red')
+
+    plt.legend()
+    plt.grid(True)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Function and Tangent Line')
+
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode()
+    plt.close()
+    return render_template('result.html',plot_url=plot_url , fxn=fxn, lowerBound=df, result=result)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # fxn = request.form['fxn']
+    # variable = request.form['variable']
+    # value = request.form['value']
+    # plot_url = '1'
+    # aba = fxn
+    # abc = aba.replace("^", "**")
+    # def g(x):
+    #     func = eval(abc)
+    #     return func
+
+
+    # # Convert input into a sympy fxn
+    # x = sp.symbols(variable)
+    # integrand = sp.sympify(fxn)
+
+    # # Calculate the integral
+    # result = sp.diff(integrand, x)
+    
+    # x = np.linspace(-8, 10+8, 20000)
+    # if("ln" in aba or "log" in aba):
+    #     x = np.linspace(1, 10+8, 20000)
+    # y = [g(a) for a in x]
+    # fig, ax = plt.subplots()
+    # plt.xlabel('$x$')
+    # plt.ylabel(aba)
+    # plt.grid()
+    # plt.plot(x,y, color='orange')
+    
+    # # Define symbol and fxn
+
+    # x = sp.symbols(variable)
+    # expr = sp.sympify(fxn)
+    # x_val = value
+
+    # # Calculate the derivative
+    # derivative = sp.diff(expr, x)
+    # print("Derivative:", derivative)
+
+    # # Evaluate the derivative at the given point
+    # derivative_at_point = derivative.evalf(subs={x: x_val})
+    # return render_template('result.html',plot_url=plot_url , fxn=fxn, variable=variable, result=derivative_at_point)
+
+def differential_calculator(fxn, variable):
+    x = sp.symbols(variable)
+    f = sp.sympify(fxn)
+    df = sp.diff(f, x)
+    return df
+
+def evaluate_fxn(fxn, variable, value):
+    x = sp.symbols(variable)
+    f = sp.sympify(fxn)
+    result = f.subs({x: value})
+    return result
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
     
